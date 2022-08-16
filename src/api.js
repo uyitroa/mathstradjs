@@ -1,0 +1,1 @@
+export const API_WIKI = ".wikipedia.org/w/api.php"
