@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import {getUrl, httpGetAsync} from "../utils/httpUtils";
 import {getRightPageID} from "../utils/translateUtils";
-import {API_WIKI} from "../api";
+import {API_WIKI, mathsLang} from "../api";
 
 class Translator extends Component {
     constructor(props) {
@@ -10,8 +10,6 @@ class Translator extends Component {
         this.searchText = "";
         this.suggestedPageID = "";
         this.searchPageID = "";
-
-        this.maths_word = "mathematics"
 
         this.send = this.send.bind(this);
         this.callbackSend = this.callbackSend.bind(this);
@@ -23,7 +21,7 @@ class Translator extends Component {
         event.preventDefault();
         this.searchText = event.target.search.value;
 
-        let srsearch_value = this.searchText + " " + this.maths_word;
+        let srsearch_value = this.searchText + " " + mathsLang[this.props.fromLang];
         let params = {
             action: "query",
             list: "search",
