@@ -11,9 +11,6 @@ class Translator extends Component {
         this.suggestedPageID = "";
         this.searchPageID = "";
 
-        this.fromLang = "en";
-        this.toLang = "fr";
-        this.api_url = "https://" + this.fromLang + API_WIKI
         this.maths_word = "mathematics"
 
         this.send = this.send.bind(this);
@@ -37,7 +34,9 @@ class Translator extends Component {
             srsearch: srsearch_value
         };
 
-        let url = getUrl(this.api_url, params);
+        let api_url = "https://" + this.props.fromLang + API_WIKI
+
+        let url = getUrl(api_url, params);
         httpGetAsync(url, this.callbackSend);
         this.inputRef.current.value = "";
     }
@@ -57,12 +56,14 @@ class Translator extends Component {
             format: "json",
             prop: "langlinks",
             pageids: this.searchPageID,
-            lllang: this.toLang,
+            lllang: this.props.toLang,
             lllimit: "100",
             origin: "*",
         };
 
-        let url = getUrl(this.api_url, params);
+        let api_url = "https://" + this.props.fromLang + API_WIKI;
+
+        let url = getUrl(api_url, params);
         httpGetAsync(url, this.callbackTranslate);
     }
 
@@ -86,7 +87,7 @@ class Translator extends Component {
             translated_word = res[0]["*"];
         }
 
-        this.props.setFunc(translated_word);
+        this.props.setResult(translated_word);
     }
 
     render() {
