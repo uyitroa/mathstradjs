@@ -34,4 +34,17 @@ function getRightPageID(data, word, suggestion = {}) {
     return wordList.length >= 0 ? wordList[0]["pageid"] : "";
 }
 
-export {getRightPageID}
+
+function cleanParanthesis(word) {
+    if (word.length === 0) {return word;}
+
+    if (word[word.length - 1] !== ")") {return word;}
+
+    let newWord = "";
+    for(let i = 0; i < word.length; i++) {
+        if (word[i] === "(") {break;}
+        newWord += word[i];
+    }
+    return newWord;
+}
+export {getRightPageID, cleanParanthesis}

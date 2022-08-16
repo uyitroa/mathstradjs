@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import {getUrl, httpGetAsync} from "../utils/httpUtils";
-import {getRightPageID} from "../utils/translateUtils";
+import {cleanParanthesis, getRightPageID} from "../utils/translateUtils";
 import {API_WIKI, mathsLang} from "../api";
 
 class Translator extends Component {
@@ -85,7 +85,7 @@ class Translator extends Component {
             translated_word = res[0]["*"];
         }
 
-        this.props.setResult(translated_word);
+        this.props.setResult(cleanParanthesis(translated_word));
     }
 
     render() {
