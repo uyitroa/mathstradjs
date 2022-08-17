@@ -227,7 +227,7 @@ export const mathsLang = {
     dv: "ރިޔާޟިއްޔާތު",
     nl: "Wiskunde",
     dz: "",
-    en: "",
+    en: "Mathematics",
     eo: "Matematiko",
     et: "Matemaatika",
     ee: "",

@@ -30,8 +30,8 @@ function getRightPageID(data, word, suggestion = {}) {
             return wordList[i]["pageid"];
         }
     }
-    suggestion.value = wordList.length >= 1 ? wordList[1]["pageid"] : "";
-    return wordList.length >= 0 ? wordList[0]["pageid"] : "";
+    suggestion.value = wordList.length > 1 ? wordList[1]["pageid"] : "";
+    return wordList.length > 0 ? wordList[0]["pageid"] : "";
 }
 
 

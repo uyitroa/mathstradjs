@@ -1,27 +1,30 @@
-import React, { Component } from "react";
+import Translator from "./Translator";
+import {API_WIKI, mathsLang} from "../api";
 import {getUrl, httpGetAsync} from "../utils/httpUtils";
 import {cleanParanthesis, getRightPageID} from "../utils/translateUtils";
-import {API_WIKI, mathsLang} from "../api";
 
-class Translator extends Component {
-    constructor(props) {
-        super(props);
-        this.inputRef = React.createRef();
+class WikipediaTranslator extends Translator {
+    constructor() {
+        super();
+
         this.searchText = "";
         this.suggestedPageID = "";
         this.searchPageID = "";
+        this.fromLang = "en";
+        this.toLang = "fr";
 
-        this.send = this.send.bind(this);
         this.callbackSend = this.callbackSend.bind(this);
-        this.translate = this.translate.bind(this);
         this.callbackTranslate = this.callbackTranslate.bind(this);
+        this.getTranslatedWord = this.getTranslatedWord.bind(this);
     }
 
-    send(event) {
-        event.preventDefault();
-        this.searchText = event.target.search.value;
+    translate(word, fromLang, toLang, setResult) {
+        this.fromLang = fromLang;
+        this.toLang = toLang;
+        this.searchText = word;
+        this.setResult = setResult;
 
-        let srsearch_value = this.searchText + " " + mathsLang[this.props.fromLang];
+        let srsearch_value = this.searchText + " " + mathsLang[this.fromLang];
         let params = {
             action: "query",
             list: "search",
@@ -32,34 +35,33 @@ class Translator extends Component {
             srsearch: srsearch_value
         };
 
-        let api_url = "https://" + this.props.fromLang + API_WIKI
+        let api_url = "https://" + this.fromLang + API_WIKI
 
         let url = getUrl(api_url, params);
         httpGetAsync(url, this.callbackSend);
-        this.inputRef.current.value = "";
     }
 
     callbackSend(response) {
         let data = JSON.parse(response);
         let suggestion = {};
-        console.log(data);
+
         this.searchPageID = getRightPageID(data, this.searchText, suggestion);
         this.suggestedPageID = suggestion.value;
-        this.translate();
+        this.getTranslatedWord();
     }
 
-    translate() {
+    getTranslatedWord() {
         let params = {
             action: "query",
             format: "json",
             prop: "langlinks",
             pageids: this.searchPageID,
-            lllang: this.props.toLang,
+            lllang: this.toLang,
             lllimit: "100",
             origin: "*",
         };
 
-        let api_url = "https://" + this.props.fromLang + API_WIKI;
+        let api_url = "https://" + this.fromLang + API_WIKI;
 
         let url = getUrl(api_url, params);
         httpGetAsync(url, this.callbackTranslate);
@@ -76,8 +78,8 @@ class Translator extends Component {
             if (this.suggestedPageID !== "") {
                 this.searchPageID = this.suggestedPageID;
                 this.suggestedPageID = "";
-                this.translate();
-                return
+                this.getTranslatedWord();
+                return;
             } else {
                 translated_word = this.searchText;
             }
@@ -85,18 +87,9 @@ class Translator extends Component {
             translated_word = res[0]["*"];
         }
 
-        this.props.setResult(cleanParanthesis(translated_word));
+        this.setResult(cleanParanthesis(translated_word));
     }
 
-    render() {
-        return (
-            <form onSubmit={this.send}>
-                <input name={"search"} placeholder={"Input something"} ref={this.inputRef}/>
-                <button type={"submit"}>Send</button>
-            </form>
-        )
-
-    }
 }
 
-export default Translator;
+export default WikipediaTranslator;
