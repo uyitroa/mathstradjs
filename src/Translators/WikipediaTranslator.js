@@ -1,7 +1,7 @@
 import Translator from "./Translator";
-import {API_WIKI, mathsLang} from "../api";
+import {API_WIKIPEDIA, mathsLang} from "../api";
 import {getUrl, httpGetAsync} from "../utils/httpUtils";
-import {cleanParanthesis, getRightPageID} from "../utils/translateUtils";
+import {cleanParanthesis, getRightID} from "../utils/translateUtils";
 
 class WikipediaTranslator extends Translator {
     constructor() {
@@ -18,13 +18,13 @@ class WikipediaTranslator extends Translator {
         this.getTranslatedWord = this.getTranslatedWord.bind(this);
     }
 
-    translate(word, fromLang, toLang, setResult) {
+    async translate(word, fromLang, toLang, setResult) {
         this.fromLang = fromLang;
         this.toLang = toLang;
         this.searchText = word;
         this.setResult = setResult;
 
-        let srsearch_value = this.searchText + " " + mathsLang[this.fromLang];
+        let srsearchValue = this.searchText + " " + mathsLang[this.fromLang];
         let params = {
             action: "query",
             list: "search",
@@ -32,10 +32,10 @@ class WikipediaTranslator extends Translator {
             origin: "*",
             srwhat: "text",
             srlimit: "20",
-            srsearch: srsearch_value
+            srsearch: srsearchValue
         };
 
-        let api_url = "https://" + this.fromLang + API_WIKI
+        let api_url = "https://" + this.fromLang + API_WIKIPEDIA
 
         let url = getUrl(api_url, params);
         httpGetAsync(url, this.callbackSend);
@@ -45,7 +45,10 @@ class WikipediaTranslator extends Translator {
         let data = JSON.parse(response);
         let suggestion = {};
 
-        this.searchPageID = getRightPageID(data, this.searchText, suggestion);
+        const wordList = data["query"]["search"];
+        const getValue = (word => word["title"]);
+        const getID = (word => word["pageid"]);
+        this.searchPageID = getRightID(wordList, this.searchText, suggestion, getValue, getID);
         this.suggestedPageID = suggestion.value;
         this.getTranslatedWord();
     }
@@ -61,7 +64,7 @@ class WikipediaTranslator extends Translator {
             origin: "*",
         };
 
-        let api_url = "https://" + this.fromLang + API_WIKI;
+        let api_url = "https://" + this.fromLang + API_WIKIPEDIA;
 
         let url = getUrl(api_url, params);
         httpGetAsync(url, this.callbackTranslate);
@@ -69,10 +72,9 @@ class WikipediaTranslator extends Translator {
 
     callbackTranslate(response) {
         let data = JSON.parse(response);
-        console.log(data);
 
         let res = data["query"]["pages"][this.searchPageID]["langlinks"];
-        let translated_word = "";
+        let translatedWord = "";
 
         if (res === undefined) {
             if (this.suggestedPageID !== "") {
@@ -81,13 +83,13 @@ class WikipediaTranslator extends Translator {
                 this.getTranslatedWord();
                 return;
             } else {
-                translated_word = this.searchText;
+                translatedWord = this.searchText;
             }
         } else {
-            translated_word = res[0]["*"];
+            translatedWord = res[0]["*"];
         }
 
-        this.setResult(cleanParanthesis(translated_word));
+        this.setResult(cleanParanthesis(translatedWord));
     }
 
 }

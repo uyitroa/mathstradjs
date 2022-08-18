@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import {getUrl, httpGetAsync} from "../utils/httpUtils";
 import {cleanParanthesis, getRightPageID} from "../utils/translateUtils";
-import {API_WIKI, mathsLang} from "../api";
+import {API_WIKIPEDIA, mathsLang} from "../api";
 import WikipediaTranslator from "../Translators/WikipediaTranslator";
+import WikidataTranslator from "../Translators/WikidataTranslator";
 
 class TranslateField extends Component {
     constructor(props) {
@@ -13,11 +14,6 @@ class TranslateField extends Component {
 
         this.translators = [new WikipediaTranslator()]; // order of priority
         this.props.setResults(Array(this.translators.length).fill(undefined));
-
-        this.state = {
-            translatorsIndex: 0
-        };
-
         this.send = this.send.bind(this);
     }
 

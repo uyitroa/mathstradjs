@@ -16,24 +16,36 @@ function isLocaleSubstring(big, small) {
     return false;
 }
 
-function getRightPageID(data, word, suggestion = {}) {
-    let wordList = data["query"]["search"];
-
-    for (let i = 0; i < wordList.length; i++) {
-        if (isLocaleSubstring(wordList[i]["title"], word)) {
-
-            if (i === 0) {
-                suggestion.value = wordList.length >= 1 ? wordList[1]["pageid"] : "";
-            } else {
-                suggestion.value = wordList[0]["pageid"];
-            }
-            return wordList[i]["pageid"];
-        }
-    }
-    suggestion.value = wordList.length > 1 ? wordList[1]["pageid"] : "";
-    return wordList.length > 0 ? wordList[0]["pageid"] : "";
+function strip(html){
+    let doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || "";
 }
 
+function cleanHref(word) {
+    return strip(word);
+}
+
+function getRightID(wordList, word, suggestion = {}, getValue, getID) {
+    /**
+     * getValue(word) => value of the word to compare
+     * getID(word) => id of the word
+     */
+
+    for (let i = 0; i < wordList.length; i++) {
+        let wikidataTitle = cleanHref(getValue(wordList[i]));
+        if (isLocaleSubstring(wikidataTitle, word)) {
+
+            if (i === 0) {
+                suggestion.value = wordList.length >= 1 ? getID(wordList[i]) : "";
+            } else {
+                suggestion.value = getID(wordList[0]);
+            }
+            return getID(wordList[i]);
+        }
+    }
+    suggestion.value = wordList.length > 1 ? getID(wordList[1]) : "";
+    return wordList.length > 0 ? getID(wordList[0]) : "";
+}
 
 function cleanParanthesis(word) {
     if (word.length === 0) {return word;}
@@ -47,4 +59,4 @@ function cleanParanthesis(word) {
     }
     return newWord;
 }
-export {getRightPageID, cleanParanthesis}
+export {cleanParanthesis, getRightID}
