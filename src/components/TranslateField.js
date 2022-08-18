@@ -4,6 +4,7 @@ import {cleanParenthesis, getRightPageID} from "../utils/translateUtils";
 import {API_WIKIPEDIA, mathsLang} from "../api";
 import WikipediaTranslator from "../Translators/WikipediaTranslator";
 import WikidataTranslator from "../Translators/WikidataTranslator";
+import Item from "../Translators/Item";
 
 class TranslateField extends Component {
     constructor(props) {
@@ -14,8 +15,8 @@ class TranslateField extends Component {
 
         this.translators = [new WikipediaTranslator(), new WikidataTranslator()]; // order of priority
 
-        this.props.setResults(Array(this.translators.length).fill(undefined));
-        this.props.setSuggestion(Array(this.translators.length).fill(""));
+        this.props.setResults(Array(this.translators.length).fill(new Item("", "")));
+        this.props.setSuggestion(Array(this.translators.length).fill(new Item("", "")));
 
         this.send = this.send.bind(this);
     }

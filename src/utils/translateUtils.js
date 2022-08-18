@@ -36,7 +36,7 @@ function getRightID(wordList, word, suggestion = {}, getValue, getID) {
         if (isLocaleSubstring(wikidataTitle, word)) {
 
             if (i === 0) {
-                suggestion.value = wordList.length >= 1 ? getID(wordList[i]) : "";
+                suggestion.value = wordList.length > 1 ? getID(wordList[1]) : "";
             } else {
                 suggestion.value = getID(wordList[0]);
             }

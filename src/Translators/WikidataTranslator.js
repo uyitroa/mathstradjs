@@ -2,6 +2,7 @@ import Translator from "./Translator";
 import {API_WIKIDATA, mathsLang} from "../api";
 import {getUrl, httpGetAsync} from "../utils/httpUtils";
 import {cleanParenthesis, getRightID} from "../utils/translateUtils";
+import Item from "./Item";
 
 class WikidataTranslator extends Translator {
     constructor() {
@@ -59,7 +60,7 @@ class WikidataTranslator extends Translator {
             action: "wbgetentities",
             format: "json",
             ids: this.searchID,
-            languages: this.toLang,
+            languages: this.toLang + "|" + this.fromLang,
             props: "labels|descriptions",
             origin: "*"
         };
@@ -72,21 +73,29 @@ class WikidataTranslator extends Translator {
     callbackTranslate(response) {
         const data = JSON.parse(response);
 
-        let translatedWord = "";
+        let translatedWord = new Item("", "");
 
         try {
             let res = data["entities"][this.searchID]["labels"][this.toLang];
-            translatedWord = res["value"];
+            let desc = "";
+
+            try {
+                desc = data["entities"][this.searchID]["descriptions"][this.fromLang]["value"];
+            } catch (e) {
+                console.error(e, e.stack);
+            }
+
+            translatedWord = new Item(cleanParenthesis(res["value"]), desc);
         } catch (e) {
             if (e instanceof TypeError) {
-
+                console.error(e, e.stack);
             } else {
                 throw e;
             }
         }
 
         if (!this.searchingSuggestion) {
-            this.setResult(cleanParenthesis(translatedWord));
+            this.setResult(translatedWord);
 
             this.searchingSuggestion = true;
             this.searchID = this.suggestedID;
@@ -94,7 +103,7 @@ class WikidataTranslator extends Translator {
             this.getTranslatedWord();
         } else {
             this.searchingSuggestion = false;
-            this.setSuggestion(cleanParenthesis(translatedWord));
+            this.setSuggestion(translatedWord);
         }
     }
 

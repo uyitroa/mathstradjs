@@ -2,6 +2,7 @@ import Translator from "./Translator";
 import {API_WIKIPEDIA, mathsLang} from "../api";
 import {getUrl, httpGetAsync} from "../utils/httpUtils";
 import {cleanParenthesis, getRightID} from "../utils/translateUtils";
+import Item from "./Item";
 
 class WikipediaTranslator extends Translator {
     constructor() {
@@ -60,7 +61,7 @@ class WikipediaTranslator extends Translator {
         let params = {
             action: "query",
             format: "json",
-            prop: "langlinks",
+            prop: "langlinks|description",
             pageids: this.searchPageID,
             lllang: this.toLang,
             lllimit: "100",
@@ -76,21 +77,30 @@ class WikipediaTranslator extends Translator {
     callbackTranslate(response) {
         let data = JSON.parse(response);
 
-        let translatedWord = "";
+        let translatedWord = new Item("", "");
 
         try {
             let res = data["query"]["pages"][this.searchPageID]["langlinks"];
-            translatedWord = res[0]["*"];
+
+            let desc = "";
+            try {
+                desc = data["query"]["pages"][this.searchPageID]["description"];
+            } catch (e) {
+                console.error(e, e.stack);
+            }
+
+
+            translatedWord = new Item(cleanParenthesis(res[0]["*"]), desc);
         } catch (e) {
             if (e instanceof TypeError) {
-
+                console.error(e, e.stack);
             } else {
                 throw e;
             }
         }
 
         if (!this.searchingSuggestion) {
-            this.setResult(cleanParenthesis(translatedWord));
+            this.setResult(translatedWord);
 
             this.searchPageID = this.suggestedPageID;
             this.suggestedPageID = ""
@@ -98,7 +108,7 @@ class WikipediaTranslator extends Translator {
             this.getTranslatedWord();
 
         } else {
-            this.setSuggestion(cleanParenthesis(translatedWord));
+            this.setSuggestion(translatedWord);
             this.searchingSuggestion = false;
         }
 
