@@ -14,8 +14,25 @@ function renderResult(results) {
     return "";
 }
 
+function getSuggestionFromResults(results) {
+    let suggestions = [];
+    let start = false;
+    for (let i = 0; i < results.length; i++) {
+        if (start) {
+            suggestions.push(results[i]);
+            continue;
+        }
+
+        if (results[i] !== "" && results[i] !== undefined) {
+            start = true;
+        }
+    }
+    return suggestions;
+}
+
 export default function App () {
     const [results, setResults] = React.useState([]); // use multiple translate algorithm, get multiple results. List order of priority
+    const [suggestions, setSuggestion] = React.useState([]);
     const [fromLang, setFromLang] = React.useState("en");
     const [toLang, setToLang] = React.useState("fr");
 
@@ -23,7 +40,14 @@ export default function App () {
         <div>
             <h1>mathstradjs</h1>
             <h2>{renderResult(results)}</h2>
-            <TranslateField fromLang={fromLang} toLang={toLang} setResults={setResults}/>
+            {suggestions.map(val => (
+                val !== "" && val !== undefined ? <h3>Suggestion: {val}</h3> : ""
+            ))}
+            
+            {getSuggestionFromResults(results).map(val => (
+                <h3>Suggestion: {val}</h3>
+            ))}
+            <TranslateField fromLang={fromLang} toLang={toLang} setResults={setResults} setSuggestion={setSuggestion}/>
             <SelectLanguage lang={fromLang} setLang={setFromLang}/>
             <SelectLanguage lang={toLang} setLang={setToLang}/>
         </div>

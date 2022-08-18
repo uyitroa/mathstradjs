@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import {getUrl, httpGetAsync} from "../utils/httpUtils";
-import {cleanParanthesis, getRightPageID} from "../utils/translateUtils";
+import {cleanParenthesis, getRightPageID} from "../utils/translateUtils";
 import {API_WIKIPEDIA, mathsLang} from "../api";
 import WikipediaTranslator from "../Translators/WikipediaTranslator";
 import WikidataTranslator from "../Translators/WikidataTranslator";
@@ -12,13 +12,17 @@ class TranslateField extends Component {
 
         this.searchText = "";
 
-        this.translators = [new WikipediaTranslator()]; // order of priority
+        this.translators = [new WikipediaTranslator(), new WikidataTranslator()]; // order of priority
+
         this.props.setResults(Array(this.translators.length).fill(undefined));
+        this.props.setSuggestion(Array(this.translators.length).fill(""));
+
         this.send = this.send.bind(this);
     }
 
     send(event) {
         event.preventDefault();
+
         this.searchText = event.target.search.value;
         this.inputRef.current.value = "";
         this.runTranslators();
@@ -34,7 +38,12 @@ class TranslateField extends Component {
             const setResult = (result => {
                 this.props.setResults(prevResult => prevResult.map((val, index, array) => index === i ? result : val));
             });
-            await this.translators[i].translate(this.searchText, this.props.fromLang, this.props.toLang, setResult);
+
+            const setSuggestion = (suggest => {
+                this.props.setSuggestion(prevSuggestion =>
+                    prevSuggestion.map((val, index, array) => index === i ? suggest : val));
+            })
+            this.translators[i].translate(this.searchText, this.props.fromLang, this.props.toLang, setResult, setSuggestion);
         }
     }
 

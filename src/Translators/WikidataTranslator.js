@@ -1,7 +1,7 @@
 import Translator from "./Translator";
 import {API_WIKIDATA, mathsLang} from "../api";
 import {getUrl, httpGetAsync} from "../utils/httpUtils";
-import {cleanParanthesis, getRightID} from "../utils/translateUtils";
+import {cleanParenthesis, getRightID} from "../utils/translateUtils";
 
 class WikidataTranslator extends Translator {
     constructor() {
@@ -13,16 +13,19 @@ class WikidataTranslator extends Translator {
 
         this.searchID = "";
         this.suggestedID = "";
+        this.searchingSuggestion = false;
 
         this.callbackSend = this.callbackSend.bind(this);
         this.getTranslatedWord = this.getTranslatedWord.bind(this);
         this.callbackTranslate = this.callbackTranslate.bind(this);
     }
-    async translate(word, fromLang, toLang, setResult) {
+    async translate(word, fromLang, toLang, setResult, setSuggestion) {
         this.searchText = word;
         this.toLang = toLang;
         this.fromLang = fromLang;
         this.setResult = setResult;
+        this.searchingSuggestion = false;
+        this.setSuggestion = setSuggestion;
 
         let srsearchValue = this.searchText + " " + mathsLang[this.fromLang];
         const params = {
@@ -69,24 +72,30 @@ class WikidataTranslator extends Translator {
     callbackTranslate(response) {
         const data = JSON.parse(response);
 
-        let res = data["entities"][this.searchID]["labels"][this.toLang];
-
         let translatedWord = "";
 
-        if (res === undefined) {
-            if (this.suggestedID !== "") {
-                this.searchID = this.suggestedID;
-                this.suggestedID = "";
-                this.getTranslatedWord();
-                return;
-            } else {
-                translatedWord = this.searchText;
-            }
-        } else {
+        try {
+            let res = data["entities"][this.searchID]["labels"][this.toLang];
             translatedWord = res["value"];
+        } catch (e) {
+            if (e instanceof TypeError) {
+
+            } else {
+                throw e;
+            }
         }
 
-        this.setResult(cleanParanthesis(translatedWord));
+        if (!this.searchingSuggestion) {
+            this.setResult(cleanParenthesis(translatedWord));
+
+            this.searchingSuggestion = true;
+            this.searchID = this.suggestedID;
+            this.suggestedID = "";
+            this.getTranslatedWord();
+        } else {
+            this.searchingSuggestion = false;
+            this.setSuggestion(cleanParenthesis(translatedWord));
+        }
     }
 
 }

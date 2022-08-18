@@ -47,7 +47,7 @@ function getRightID(wordList, word, suggestion = {}, getValue, getID) {
     return wordList.length > 0 ? getID(wordList[0]) : "";
 }
 
-function cleanParanthesis(word) {
+function cleanParenthesis(word) {
     if (word.length === 0) {return word;}
 
     if (word[word.length - 1] !== ")") {return word;}
@@ -59,4 +59,4 @@ function cleanParanthesis(word) {
     }
     return newWord;
 }
-export {cleanParanthesis, getRightID}
+export {cleanParenthesis, getRightID}
