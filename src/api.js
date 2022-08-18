@@ -1,4 +1,6 @@
-export const API_WIKI = ".wikipedia.org/w/api.php";
+export const API_WIKIPEDIA = ".wikipedia.org/w/api.php";
+export const API_WIKIDATA = "https://www.wikidata.org/w/api.php";
+
 export const langCode = {
     ab: "Abkhaz",
     aa: "Afar",
@@ -227,7 +229,7 @@ export const mathsLang = {
     dv: "ރިޔާޟިއްޔާތު",
     nl: "Wiskunde",
     dz: "",
-    en: "",
+    en: "Mathematics",
     eo: "Matematiko",
     et: "Matemaatika",
     ee: "",
