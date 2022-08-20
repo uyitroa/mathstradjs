@@ -1,7 +1,7 @@
 class Item {
     constructor(value= "", description= "") {
         this.value = value;
-        this.description = "";
+        this.description = description;
     }
 }
 
